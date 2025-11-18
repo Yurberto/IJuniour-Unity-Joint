@@ -2,11 +2,11 @@
 
 namespace Assets.Source.Scripts
 {
-    public class Rocker
+    public class SwingOscillator
     {
         private Rigidbody _saddle;
 
-        public Rocker(Rigidbody saddle) =>
+        public SwingOscillator(Rigidbody saddle) =>
             _saddle = saddle;
 
         public void Swing(float force) =>

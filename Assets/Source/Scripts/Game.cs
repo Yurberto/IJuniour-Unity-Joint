@@ -1,43 +1,75 @@
-﻿using UnityEngine;
+﻿using Unity.VisualScripting;
+using Unity.VisualScripting.Dependencies.Sqlite;
+using UnityEngine;
 
 namespace Assets.Source.Scripts
 {
     public class Game : MonoBehaviour
     {
+        [Header("Swing")]
         [SerializeField] private Rigidbody _swingSaddle;
-        [SerializeField] private Rigidbody _catapultPoint;
         [SerializeField] private float _swingForce = 500f;
-        [SerializeField] private float _catapultForce = 1000f;
+
+        [Header("Catapult")]
+        [SerializeField] private Projectile _prefab;
+        [SerializeField] private Transform _projectilePoint;
+        [Space]
+        [SerializeField] private Transform _catapultAnchor;
+        [SerializeField, Range(4f, 100f)] private float _upYValue;
+        [SerializeField, Range(-100f, -4f)] float _downYValue;
 
         private InputReader _inputReader = new();
-        private Rocker _rocker;
+        private SwingOscillator _swingOscillator;
         private Catapult _catapult;
+        private CatapultLoader _loader;
 
         private void Awake()
         {
-            _rocker = new Rocker(_swingSaddle);
-            _catapult = new Catapult(_catapultPoint);
+            _swingOscillator = new SwingOscillator(_swingSaddle);
+            _catapult = new Catapult(_catapultAnchor, _upYValue, _downYValue);
+            _loader = new CatapultLoader(_prefab, _projectilePoint);
         }
 
         private void OnEnable()
         {
             _inputReader.SwingingButtonPressed += Swing;
-            _inputReader.FireProjectileButtonPressed += FireProjectile;
+
+            _inputReader.ToggleCatapultButtonPressed += ToggleCatapult;
+            _inputReader.LoadProjectileButtonPressed += LoadProjectile;
         }
 
         private void OnDisable()
         {
             _inputReader.SwingingButtonPressed -= Swing;
-            _inputReader.FireProjectileButtonPressed -= FireProjectile;
+
+            _inputReader.ToggleCatapultButtonPressed -= ToggleCatapult;
+            _inputReader.LoadProjectileButtonPressed -= LoadProjectile;
         }
 
         private void Update() =>
             _inputReader.Update();
 
         private void Swing() =>
-            _rocker.Swing(_swingForce);
+            _swingOscillator.Swing(_swingForce);
 
-        private void FireProjectile() =>
-            _catapult.Fire(_catapultForce);
+        private void ToggleCatapult()
+        {
+            if (_catapult.IsReadyTiFire)
+            {
+                _catapult.Fire();
+                Debug.Log("Fire");
+            }
+            else
+            {
+                _catapult.Reload();
+                Debug.Log("Reload");
+
+            }
+        }
+
+        private void LoadProjectile()
+        {
+            _loader.Load();
+        }
     }
 }
