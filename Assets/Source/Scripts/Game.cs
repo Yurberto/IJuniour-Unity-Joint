@@ -55,16 +55,9 @@ namespace Assets.Source.Scripts
         private void ToggleCatapult()
         {
             if (_catapult.IsReadyTiFire)
-            {
                 _catapult.Fire();
-                Debug.Log("Fire");
-            }
             else
-            {
                 _catapult.Reload();
-                Debug.Log("Reload");
-
-            }
         }
 
         private void LoadProjectile()
